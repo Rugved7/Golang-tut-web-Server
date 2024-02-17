@@ -13,7 +13,7 @@ import (
 
 // Model for Course - file
 type Course struct {
-	CourseID    string  `json:"courseid"`
+	CourseID    string  `json:"CourseID"`
 	CourseName  string  `json:"coursename"`
 	CoursePrice int     `json:"courseprice"`
 	Author      *Author `json:"author"`
@@ -84,7 +84,47 @@ func createCourse(w http.ResponseWriter, r *http.Request) {
 	course.CourseID = strconv.Itoa(rand.Intn(100))
 	courses = append(courses, course)
 	json.NewEncoder(w).Encode(course)
-	return
+}
+
+// Update course
+func updateCourse(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Update one course")
+	w.Header().Set("Content-Type", "applicatioan/json")
+
+	// first - grab id from req
+	params := mux.Vars(r)
+
+	// loop, id, remove, add with my ID
+
+	for index, course := range courses {
+		if course.CourseID == params["id"] {
+			courses = append(courses[:index], courses[index+1:]...)
+			var course Course
+			_ = json.NewDecoder(r.Body).Decode(&course)
+			course.CourseID = params["id"]
+			courses = append(courses, course)
+			json.NewEncoder(w).Encode(course)
+			return
+		}
+	}
+	//TODO: send a response when id is not found
+}
+
+func deleteCourse(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Delete one course")
+	w.Header().Set("Content-Type", "applicatioan/json")
+
+	params := mux.Vars(r)
+
+	//loop, id, remove (index, index+1)
+
+	for index, course := range courses {
+		if course.CourseID == params["id"] {
+			courses = append(courses[:index], courses[index+1:]...)
+			// TODO: send a confirm or deny response
+			break
+		}
+	}
 }
 
 func main() {
